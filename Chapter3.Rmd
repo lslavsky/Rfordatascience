@@ -1,0 +1,365 @@
+---
+title: "Chapter 3.0"
+author: "Laura"
+date: "9/3/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+```{r}
+flights
+str(flights)
+```
+```{r}
+View(flights)
+```
+I like how that made the data look :) 
+
+
+```{r}
+Filtered1_1  <- filter(flights, month == 1, day == 1)
+```
+```{r}
+View(Filtered1_1)
+```
+Wanted to see if View would work, error in view : unused argument for (day == 1) hmmm. 
+
+```{r}
+?View
+```
+
+To save result, need to use assignment operator <- 
+
+```{r}
+jan1 <- filter(flights, month == 1, day == 1)
+```
+
+moves to environment w/title "jan1" 
+
+```{r}
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+
+adding parentheses the variale and prints results if you add () (above)
+
+
+```{r}
+nov_dec <- filter(flights, month %in% c(11, 12))
+```
+
+
+Nothing comes up using the above
+
+
+
+```{r}
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+
+## Exercises: 
+Find all flights that
+
+1) Had an arrival delay of two or more hours
+
+(make sure to use arr_delay for this one:)
+```{r}
+filter(flights, arr_delay >= 120)
+```
+
+
+2) Flew to Houston (IAH or HOU)
+
+```{r}
+filter(flights, dest == "IAH" | dest == "HOU")
+```
+
+
+Did not put quotes in at first, didn't work. Not sure how to type "or" line. Will google that now. 
+* It's above the "enter" key: shift + \ = | 
+
+3) Were operated by United, American, or Delta) 
+
+```{r}
+filter(flights, carrier %in% c("AA", "DL", "UA"))
+```
+
+So using %in% and then c("whatever you want", "whatever else you want") brings up same thing as saying == "this" | == "this" | == "this too", etc. 
+
+4) Departed in summer (July, Aug, Sept)
+
+```{r}
+filter(flights, month %in% c("7", "8", "9"))
+```
+
+Can also use: 
+
+```{r}
+filter(flights, month %in% c(7:9))
+```
+
+
+
+5) flights that arrived more than 2 hrs late but didn't leave late
+
+```{r}
+filter(flights, arr_delay > 120, dep_delay <= 0)
+```
+Using comma shows "and" needed for data to match request (ie needs to be both, no need to say this "AND" this for resutls)
+
+6) Were delayed by at least an hour, but made up over 30 minutes in flight.
+
+```{r}
+filter(flights, dep_delay >= 60, dep_delay - arr_delay > 30)
+```
+
+So this says that the dep delay was 60 min or more, and the departure delay minus the arriva delay was greater than 30 min. 
+
+
+7) Departed between midnight and 6am (inclusive)
+
+```{r}
+filter(flights, dep_time <= 600 | dep_time == 2400)
+```
+
+Can't just say <= 600 because of the way the time data is written w/midnight being 2400. So saying <=600 | == 2400 gets all times between midnght and 6am included. 
+
+Tried knitting this to see but error in line 59 as I have noted as well. Keeping for now to look at more closely later. 
+
+8) what is the filter helper between()? 
+
+```{r}
+?between
+```
+Between filters numbers between what you set, so instead of saying x>= left & x<= right, you can say between(x, left, right)
+
+For example for the summer months question:
+
+```{r}
+filter(flights, between(month, 7, 9))
+```
+
+9) How many flights have a missing dep_time? What other variables are missing? What might these rows represent? 
+
+```{r}
+filter(flights, is.na(dep_time))
+```
+
+Used is.na to figure out (p49 in book) The arrival time is also NA, these are flights that were cancelled.
+
+10) why is NA ^0 not missing? Why is NA | TRUE not missing? WHy is FALSE & NA not missing? can you figure out the general rule?
+
+```{r}
+NA ^ 0
+```
+
+```{r}
+NA | TRUE
+```
+
+```{r}
+FALSE & NA
+```
+
+A bit confused about what these numbers mean. 
+
+
+# Arrange Rows with arrange()
+
+```{r}
+arrange(flights, year, month, day)
+```
+
+```{r}
+arrange(flights, desc(arr_delay))
+```
+
+1) how could you use arrange() to sort all missing values to the start? (hint: use is.na())
+
+
+```{r}
+arrange(flights, desc(is.na(dep_time)), dep_time)
+```
+
+2. Sort flights to find the most delayed flights. Find the flights that left earliest. 
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+These are the flights that were most delayed
+
+```{r}
+arrange(flights, dep_delay)
+```
+
+w/out descending it shows in ascending order.
+
+3. Sort flights to find the fastest flights.
+
+```{r}
+arrange(flights,  )
+```
+No idea how to do this...
+
+
+4. Which flight traveled the longest? the shortest? 
+
+```{r}
+arrange(flights, desc(distance))
+```
+
+So that's for the longest, shortest are:
+
+```{r}
+arrange(flights, distance)
+```
+
+I laughed out loud at the 17 mi flight
+
+## Select item with select()
+
+select() allows you to rapidly zoom in on a useful subset using operations based on the names of the variables
+
+```{r}
+select(flights, year, month, day)
+```
+
+```{r}
+select(flights, year:day)
+```
+
+
+Ok yep pretty straight forward
+
+```{r}
+select(flights, -(year:day))
+```
+
+
+?select()
+
+rename flights using rename() because it keeps all other variables. Using select() would drop all other values not explicitly detailed
+
+```{r}
+rename(flights, tail_num = tailnum)
+```
+
+OR use select() in conjunction with everything() as follows:
+
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+
+So it selected everything after the ones I named of time_hour and air_time. 
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+```
+
+```{r}
+select(flights, 4, 6, 7, 9)
+
+```
+
+2) What happens if you include the name of a variable multiple times in a select() call? 
+
+```{r}
+select(flights, dep_time, dep_time)
+```
+
+It ignores repeats, no error messages occur. Useful b/c you can use select() w/ everything() to change order of columns w/out having to specify the names of all of them
+
+3) What does the one_of() function do? Why might it be helpful in conjunction with this vector?
+
+
+```{r}
+? one_of
+```
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+```
+
+Selects variables w/a character vector rather than unquoted variable name arguments
+
+4) Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+
+```{r}
+select(flights, contains("TIME"))
+```
+it ignores case
+
+```{r}
+select(flights, contains("TIME", ignore.case = FALSE))
+```
+
+adding ignore.case = FALSE will change it to use case. 
+
+
+## Add new variables with mutate() 
+
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+)
+```
+
+So that added the gain & speed columns. 
+
+
+You can refer to new columns you've created:
+
+```{r}
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+If you only want to keep the new variables, use transmute():
+
+```{r}
+transmute(flights,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
