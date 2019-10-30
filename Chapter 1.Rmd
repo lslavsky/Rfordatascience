@@ -1,0 +1,307 @@
+---
+title: "Chapter 1"
+author: "Laura"
+date: "8/7/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+https://jrnold.github.io/r4ds-exercise-solutions/data-visualisation.html Website w/answers
+https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf shortcuts for markdown
+
+
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+  
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+
+ggplot(data = mpg) +
+  geom_point(mapping =aes(x = displ, y = hwy, size = class))
+
+# Top 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+  
+# Bottom 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+  
+ggplot(data = mpg) +
+   geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5))
+```{r}
+library(ggplot2)
+ggplot(data = mpg)
+```
+
+```{r}
+# I want to see mpg data
+
+head(mpg)
+str(mpg)
+write.csv(mpg, file = "mpg")
+
+```
+
+I am confused. I am going to try to keep going and see if it starts to make more sense. 
+
+Facets:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+Did not display at first in plots pane, Googled and found to click on gear button in this pane and choose "Chunk output in console" and it is fixed!
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+Without rows or columns:
+
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ cyl)
+```
+
+3.5.1 Exercises:
+1) What happens if you facet on a continuous variable?
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(. ~ cty)
+```
+The continuous variable changed to a catagorical variable, and each number got its own facet. (looked at book answers for term "catetorical" variable)
+
+2) What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = drv, y = cyl))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = hwy, y = cty)) +
+  facet_grid(drv ~ cyl)
+```
+Blank plots are where there's no type of that car: so for example no 4 wheel drive 5 cylinder vehicles. 
+
+3) What plots does the following code make? What does . do?
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+
+It ignored the part repalced with the . in the facet. Answer key says ignored that "dimension"
+
+4) Take the first faceted plot in this section:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?
+
+?facet_wrap
+It's funny that I searched this before the question asking me to. 
+
+Advantages to faceting: pulls data into separate, easier to see variables, but could be harder to compare overall picture. If had a large dataset, may be best to have it faceted so there's meaning to the dots as opposed to all squished and potentially overlapping in one graph. 
+
+## Geometric Objects
+
+```{r}
+# left
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+```
+```{r}
+# right
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+You can change the line type in line graphs:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+That separated the drive types compared to the other where they were combined in one line (I think)
+
+So Many geoms, like geom_smooth(), use a single geometric object to display multiple rows of data
+
+
+```{r}
+geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(
+    mapping = aes(x = displ, y = hwy, color = drv),
+    show.legend = TRUE)
+```
+
+Above did not work! 
+
+To display multiple geoms in the same plot, add multiple geom functions to ggplot()
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+Another error message: Error: Cannot add ggproto objects together. Did you forget to add this object to a ggplot object?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth()
+```
+
+
+# Exercises:
+
+2) Predict what this code will look like
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, colour = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+5)Will these two graphs look different? Why/why not?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+```{r}
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+geom_point() and geom_smooth() use the same data and mappings so look the same
+
+
+
+```{r}
+install.packages("maps")
+
+library(maps)
+library(ggplot2)
+nz <- map_data("usa")
+
+ 
+
+ggplot(nz, aes(long, lat, group = group)) +
+
+  geom_polygon(fill = "white", colour = "black")
+
+ 
+
+ggplot(nz, aes(long, lat, group = group)) +
+
+  geom_polygon(fill = "white", colour = "black") +
+
+  coord_quickmap()
+```
+
+
+Didn't work because could not find nz
+
+```{r}
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+bar + coord_polar()
+```
+
+Neat! the above worked fine
+
+## Exercises
+1) Turn a stacked bar chart into a pie chart using coord_polar()
+
+```{r}
+ggplot(mpg, aes(x = factor(1), fill = drv)) +
+  geom_bar()
+```
+```{r}
+ggplot(mpg, aes(x = factor(1), fill = drv)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y")
+```
+
+```{r}
+?labs()
+```
+
+Labs modify axes, legends, and plot tables (y, x, title, subtitle, caption, etc.)
+
+3) What's the difference between coord_quickmap() and coord_map()?
+
+```{r}
+?coord_quickmap
+```
+
+4) what does the following plot tell you about the relationship between city and hwy mpg? why is coord_fixed() important? What does geom_abline() do?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline() +
+  coord_fixed()
+
+```
+
+```{r}
+?coord_fixed
+```
+
+```{r}
+?geom_abline
+```
+
+
+
+
+
